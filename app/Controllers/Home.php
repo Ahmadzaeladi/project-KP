@@ -2,36 +2,69 @@
 
 namespace App\Controllers;
 
-use App\Models\GalleryModel;
-use App\Models\HeroContentModel;
-use App\Models\SiteSettingsModel;
-use App\Models\MissionModel;
-use App\Models\TeamModel;
+use App\Models\ContentModel;
+use App\Models\ImageModel;
 
 class Home extends BaseController
 {
     public function index(): string
     {
-        $galleryModel = new GalleryModel();
-        $heroModel = new HeroContentModel();
-        $settingsModel = new SiteSettingsModel();
-        $missionModel = new MissionModel();
-        $teamModel = new TeamModel();
-        $clientModel = new \App\Models\ClientModel();
+        $contentModel = new ContentModel();
+        $imageModel = new ImageModel();
 
-        $settingsRaw = $settingsModel->findAll();
+        // Helper to format data
+        $getContentWithImages = function($section, $onlyActive = false) use ($contentModel, $imageModel) {
+            $builder = $contentModel->where('section', $section);
+            if ($onlyActive) {
+                $builder->where('is_active', 1);
+            }
+            $contents = $builder->orderBy('order_index', 'ASC')->findAll();
+            
+            $result = [];
+            foreach ($contents as $item) {
+                $image = $imageModel->where('content_id', $item['id'])->first();
+                $item['image_url'] = $image ? $image['image_url'] : null;
+                $item['image_path'] = $item['image_url']; 
+                $item['photo_path'] = $item['image_url'];
+                $item['logo_path'] = $item['image_url'];
+                $item['display_order'] = $item['order_index'];
+                $item['description'] = $item['body_content'];
+                $item['position'] = $item['subtitle'];
+                $item['name'] = $item['title'];
+                $result[] = $item;
+            }
+            return $result;
+        };
+
+        // Settings
+        $settingsRaw = $contentModel->where('section', 'settings')->findAll();
         $settings = [];
         foreach ($settingsRaw as $s) {
-            $settings[$s['setting_key']] = $s['setting_value'];
+            $settings[$s['title']] = $s['body_content'];
+        }
+
+        // Hero
+        $heroRaw = $getContentWithImages('hero');
+        $hero = null;
+        if (!empty($heroRaw)) {
+            $h = $heroRaw[0];
+            $bodyData = json_decode($h['body_content'], true);
+            $hero = [
+                'headline' => $h['title'],
+                'sub_headline' => $h['subtitle'],
+                'primary_cta_text' => $bodyData['primary_cta_text'] ?? '',
+                'secondary_cta_text' => $bodyData['secondary_cta_text'] ?? '',
+                'background_image' => $h['image_url']
+            ];
         }
 
         $data = [
-            'gallery' => $galleryModel->getActiveGallery(),
-            'hero' => $heroModel->first() ?? [],
+            'gallery' => $getContentWithImages('gallery', true),
+            'hero' => $hero ?? [],
             'settings' => $settings,
-            'missions' => $missionModel->orderBy('display_order', 'ASC')->findAll(),
-            'team' => $teamModel->orderBy('display_order', 'ASC')->findAll(),
-            'clients' => $clientModel->where('is_active', 1)->orderBy('display_order', 'ASC')->findAll()
+            'missions' => $getContentWithImages('mission'),
+            'team' => $getContentWithImages('team'),
+            'clients' => $getContentWithImages('clients', true)
         ];
         
         return view('home', $data);

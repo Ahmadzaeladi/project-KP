@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateHeroContentTable extends Migration
+class TblImages extends Migration
 {
     public function up()
     {
@@ -15,40 +15,45 @@ class CreateHeroContentTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'headline' => [
+            'content_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+            ],
+            'image_url' => [
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
             ],
-            'sub_headline' => [
-                'type' => 'TEXT',
-                'null' => true,
-            ],
-            'primary_cta_text' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '50',
-                'null'       => true,
-            ],
-            'secondary_cta_text' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '50',
-                'null'       => true,
-            ],
-            'background_image' => [
+            'public_id' => [
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
                 'null'       => true,
             ],
-            'updated_at' => [
+            'image_category' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '50',
+                'null'       => true,
+            ],
+            'alt_text' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+            ],
+            'create_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('hero_content');
+        
+        // Menambahkan Foreign Key: content_id relasi ke id di tbl_content
+        $this->forge->addForeignKey('content_id', 'tbl_content', 'id', 'CASCADE', 'CASCADE');
+        
+        $this->forge->createTable('tbl_images');
     }
 
     public function down()
     {
-        $this->forge->dropTable('hero_content');
+        $this->forge->dropTable('tbl_images', true);
     }
 }

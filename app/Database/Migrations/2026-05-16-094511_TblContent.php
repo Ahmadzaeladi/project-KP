@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateTeamTable extends Migration
+class TblContent extends Migration
 {
     public function up()
     {
@@ -15,39 +15,53 @@ class CreateTeamTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'name' => [
+            'section' => [
                 'type'       => 'VARCHAR',
-                'constraint' => '255',
+                'constraint' => '50',
             ],
-            'position' => [
-                'type'       => 'VARCHAR',
-                'constraint' => '100',
-            ],
-            'photo_path' => [
+            'title' => [
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
                 'null'       => true,
             ],
-            'bio' => [
+            'subtitle' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+            ],
+            'body_content' => [
                 'type' => 'TEXT',
                 'null' => true,
             ],
-            'display_order' => [
+            'order_index' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'default'    => 0,
             ],
-            'created_at' => [
+            'published_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'is_active' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'create_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'update_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('team');
+        $this->forge->createTable('tbl_content');
     }
 
     public function down()
     {
-        $this->forge->dropTable('team');
+        $this->forge->dropTable('tbl_content', true);
     }
 }

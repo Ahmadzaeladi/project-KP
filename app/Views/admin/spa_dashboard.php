@@ -65,15 +65,27 @@
                     <div>
                         <label class="form-label-spa">Dokumentasi Foto</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <button type="button" class="btn-spa" onclick="triggerUpload('camera')" style="flex:1; background: #e2e8f0; border:none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;"><i class="fas fa-camera" style="margin-right: 5px;"></i> Kamera</button>
+                            <button type="button" class="btn-spa" onclick="startCamera()" style="flex:1; background: #e2e8f0; border:none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;"><i class="fas fa-camera" style="margin-right: 5px;"></i> Web Kamera</button>
                             <button type="button" class="btn-spa" onclick="triggerUpload('file')" style="flex:1; background: #e2e8f0; border:none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;"><i class="fas fa-folder-open" style="margin-right: 5px;"></i> File Browser</button>
                         </div>
-                        <div class="file-upload-zone" onclick="triggerUpload('file')">
-                            <input type="file" name="photo" id="file-input" style="display: none;" accept="image/*" required onchange="previewImage(event, 'image-preview', 'upload-instruction')">
+                        
+                        <!-- Camera Area -->
+                        <div id="camera-container" style="display: none; text-align: center; margin-bottom: 15px;">
+                            <video id="camera-stream" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 8px; border: 2px solid #e2e8f0; margin-bottom: 10px;"></video>
+                            <br>
+                            <button type="button" onclick="snapPhoto()" class="btn-spa btn-spa-primary" style="padding: 10px 20px;"><i class="fas fa-camera"></i> Ambil Foto</button>
+                            <button type="button" onclick="stopCamera()" class="btn-spa" style="background: #fee2e2; color: #ef4444; border:none; padding: 10px 20px;"><i class="fas fa-times"></i> Tutup Kamera</button>
+                        </div>
+                        
+                        <input type="hidden" name="photo_base64" id="photo-base64">
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+
+                        <div class="file-upload-zone" id="upload-zone" onclick="triggerUpload('file')">
+                            <input type="file" name="photo" id="file-input" style="display: none;" accept="image/*" onchange="previewImage(event, 'image-preview', 'upload-instruction')">
                             <div id="upload-instruction">
                                 <i class="fas fa-cloud-arrow-up fs-1 text-muted mb-3" style="font-size:2rem;"></i>
-                                <h5 style="margin-bottom: 0.5rem; font-weight: 700;">Pilih Foto</h5>
-                                <p class="small text-muted mb-0">Klik tombol di atas atau area ini</p>
+                                <h5 style="margin-bottom: 0.5rem; font-weight: 700;">Pilih Foto atau Gunakan Kamera</h5>
+                                <p class="small text-muted mb-0">Klik area ini untuk file browser</p>
                             </div>
                             <img id="image-preview" src="#" alt="Preview" style="display: none; max-width: 100%; max-height: 200px; object-fit: contain; margin: 0 auto; border-radius: 8px;">
                         </div>
@@ -253,14 +265,72 @@
 
     <!-- SPA Logic -->
     <script>
+        // --- Camera & Upload Logic --- //
+        let videoStream = null;
+
         function triggerUpload(type) {
             const input = document.getElementById('file-input');
-            if (type === 'camera') {
-                input.setAttribute('capture', 'environment');
-            } else {
-                input.removeAttribute('capture');
+            if (type === 'file') {
+                document.getElementById('photo-base64').value = '';
+                input.click();
             }
-            input.click();
+        }
+
+        async function startCamera() {
+            document.getElementById('upload-zone').style.display = 'none';
+            document.getElementById('camera-container').style.display = 'block';
+            const video = document.getElementById('camera-stream');
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = videoStream;
+            } catch (err) {
+                alert("Tidak dapat mengakses kamera: " + err.message);
+                stopCamera();
+            }
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            document.getElementById('camera-container').style.display = 'none';
+            document.getElementById('upload-zone').style.display = 'block';
+        }
+
+        function snapPhoto() {
+            const video = document.getElementById('camera-stream');
+            const canvas = document.getElementById('camera-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('photo-base64').value = dataURL;
+            document.getElementById('file-input').value = ''; // clear file input
+            
+            // show preview
+            const preview = document.getElementById('image-preview');
+            preview.src = dataURL;
+            preview.style.display = 'block';
+            document.getElementById('upload-instruction').style.display = 'none';
+            
+            stopCamera();
+        }
+
+        function filterGallery(query) {
+            const q = query.toLowerCase();
+            const rows = document.querySelectorAll('#gallery-table-body tr');
+            rows.forEach(row => {
+                const title = row.getAttribute('data-title').toLowerCase();
+                if (title.includes(q)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         let serverData = <?= json_encode([
@@ -522,7 +592,7 @@
             let rows = serverData.gallery.map(item => {
                 let disabled = (item.is_active == 0) ? 'disabled' : '';
                 return `
-                <tr id="gal-${item.id}" class="${item.is_active == 0 ? 'inactive-row' : ''}">
+                <tr id="gal-${item.id}" class="${item.is_active == 0 ? 'inactive-row' : ''}" data-title="${item.title.replace(/"/g, '&quot;')}">
                     <td data-label="Urutan">
                         <div class="order-control" style="border:none; padding:0;">
                             <input type="number" class="order-input" value="${item.display_order > 0 ? item.display_order : ''}" onchange="updateOrder(${item.id}, this.value, this)" ${disabled} style="border:1px solid #edf2f7; border-radius:8px; padding:5px;">
@@ -547,13 +617,19 @@
 
             return `
                 <div class="view-content">
-                    <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
                             <h1 style="font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Gallery</h1>
                             <p style="color: var(--text-muted);">Kelola galeri kegiatan.</p>
                         </div>
                         <button class="btn-spa btn-spa-primary" style="padding: 0.8rem 1.5rem;" onclick="openModal('photo-modal')"><i class="fas fa-plus me-2"></i> Tambah Foto</button>
                     </header>
+                    <div style="margin-bottom: 15px;">
+                        <div style="position: relative; max-width: 300px;">
+                            <i class="fas fa-search" style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
+                            <input type="text" class="input-spa" placeholder="Cari foto..." onkeyup="filterGallery(this.value)" style="padding-left: 40px; border-radius: 20px;">
+                        </div>
+                    </div>
                     <div class="cms-table-container">
                         <table class="cms-table" style="width:100%; text-align:left;">
                             <thead>
@@ -565,7 +641,7 @@
                                     <th style="text-align:right;">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>${rows}</tbody>
+                            <tbody id="gallery-table-body">${rows}</tbody>
                         </table>
                     </div>
                 </div>
