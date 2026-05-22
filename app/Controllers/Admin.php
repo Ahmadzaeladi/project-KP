@@ -316,6 +316,9 @@ class Admin extends BaseController
     public function addGallery()
     {
         $title = $this->request->getPost('title');
+        $caption = $this->request->getPost('caption');
+        $tanggal_kegiatan = $this->request->getPost('tanggal_kegiatan');
+
         if (empty($title)) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Judul foto wajib diisi.']);
         }
@@ -342,6 +345,8 @@ class Admin extends BaseController
             $this->contentModel->insert([
                 'section' => 'gallery',
                 'title' => $title,
+                'subtitle' => $caption,
+                'published_at' => empty($tanggal_kegiatan) ? date('Y-m-d H:i:s') : $tanggal_kegiatan,
                 'order_index' => $newOrder,
                 'is_active' => 1
             ]);

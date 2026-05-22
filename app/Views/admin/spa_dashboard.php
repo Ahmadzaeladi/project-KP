@@ -63,6 +63,14 @@
                         <input type="text" name="title" class="input-spa" placeholder="Contoh: Pelatihan Softskill 2024" required>
                     </div>
                     <div>
+                        <label class="form-label-spa">Caption / Deskripsi Singkat</label>
+                        <textarea name="caption" class="input-spa" rows="2" placeholder="Deskripsi kegiatan..."></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label-spa">Tanggal Kegiatan</label>
+                        <input type="date" name="tanggal_kegiatan" class="input-spa" required>
+                    </div>
+                    <div>
                         <label class="form-label-spa">Dokumentasi Foto</label>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                             <button type="button" class="btn-spa" onclick="startCamera()" style="flex:1; background: #e2e8f0; border:none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;"><i class="fas fa-camera" style="margin-right: 5px;"></i> Web Kamera</button>
@@ -320,15 +328,28 @@
             stopCamera();
         }
 
-        function filterGallery(query) {
-            const q = query.toLowerCase();
-            const rows = document.querySelectorAll('#gallery-table-body tr');
-            rows.forEach(row => {
-                const title = row.getAttribute('data-title').toLowerCase();
-                if (title.includes(q)) {
-                    row.style.display = '';
+        function filterAdminGallery() {
+            const searchTxt = (document.getElementById('adminGallerySearch') ? document.getElementById('adminGallerySearch').value.toLowerCase() : '');
+            const pekanVal = document.getElementById('adminFilterPekan') ? document.getElementById('adminFilterPekan').value : '';
+            const bulanVal = document.getElementById('adminFilterBulan') ? document.getElementById('adminFilterBulan').value : '';
+            const tahunVal = document.getElementById('adminFilterTahun') ? document.getElementById('adminFilterTahun').value : '';
+
+            const cards = document.querySelectorAll('.admin-gallery-card');
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title');
+                const week = card.getAttribute('data-week');
+                const month = card.getAttribute('data-month');
+                const year = card.getAttribute('data-year');
+
+                const matchSearch = title.includes(searchTxt);
+                const matchPekan = (pekanVal === '') || (pekanVal === week);
+                const matchBulan = (bulanVal === '') || (bulanVal === month);
+                const matchTahun = (tahunVal === '') || (tahunVal === year);
+
+                if (matchSearch && matchPekan && matchBulan && matchTahun) {
+                    card.style.display = 'flex';
                 } else {
-                    row.style.display = 'none';
+                    card.style.display = 'none';
                 }
             });
         }
@@ -589,30 +610,72 @@
         }
 
         function renderGallery() {
+            let years = new Set();
+            serverData.gallery.forEach(item => {
+                if(item.published_at) {
+                    let d = new Date(item.published_at.replace(' ', 'T'));
+                    if(!isNaN(d.getFullYear())) {
+                        years.add(d.getFullYear());
+                    }
+                }
+            });
+            let yearsArr = Array.from(years).sort((a,b) => b-a);
+            if(yearsArr.length === 0) yearsArr = [new Date().getFullYear()];
+            
+            let yearOptions = yearsArr.map(y => `<option value="${y}">${y}</option>`).join('');
+
             let rows = serverData.gallery.map(item => {
                 let disabled = (item.is_active == 0) ? 'disabled' : '';
+                let titleSafe = item.title ? item.title.replace(/"/g, '&quot;') : '';
+                let subtitleSafe = item.subtitle ? item.subtitle.replace(/"/g, '&quot;') : '';
+                let combinedTitle = (titleSafe + ' ' + subtitleSafe).toLowerCase();
+                
+                let dateStr = '';
+                let week = '';
+                let month = '';
+                let year = '';
+                if(item.published_at) {
+                    // Fix Safari/iOS date parsing by using T instead of space
+                    let d = new Date(item.published_at.replace(' ', 'T'));
+                    if(!isNaN(d.getTime())) {
+                        const monthsIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                        dateStr = `${d.getDate()} ${monthsIndo[d.getMonth()]} ${d.getFullYear()}`;
+                        year = d.getFullYear().toString();
+                        month = (d.getMonth() + 1).toString();
+                        week = Math.ceil(d.getDate() / 7).toString();
+                    }
+                }
+
                 return `
-                <tr id="gal-${item.id}" class="${item.is_active == 0 ? 'inactive-row' : ''}" data-title="${item.title.replace(/"/g, '&quot;')}">
-                    <td data-label="Urutan">
-                        <div class="order-control" style="border:none; padding:0;">
-                            <input type="number" class="order-input" value="${item.display_order > 0 ? item.display_order : ''}" onchange="updateOrder(${item.id}, this.value, this)" ${disabled} style="border:1px solid #edf2f7; border-radius:8px; padding:5px;">
-                        </div>
-                    </td>
-                    <td data-label="Preview"><img src="${item.image_path}" class="thumbnail-cms"></td>
-                    <td data-label="Judul"><strong>${item.title}</strong></td>
-                    <td data-label="Status">
-                        <div class="d-flex align-items-center gap-2" style="display:flex; align-items:center; gap:10px;">
-                            <div class="toggle-switch-spa ${item.is_active == 1 ? 'active' : ''}" onclick="toggleStatus(${item.id})">
-                                <div class="toggle-dot"></div>
+                <div class="admin-gallery-card card-spa ${item.is_active == 0 ? 'inactive-row' : ''}" style="padding: 1rem; display: flex; flex-direction: column; gap: 10px; width: 100%; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; transition: transform 0.2s;" data-title="${combinedTitle}" data-week="${week}" data-month="${month}" data-year="${year}">
+                    <div style="display:flex; gap: 15px; align-items:flex-start;">
+                        <img src="${item.image_path}" style="width:120px; height:100px; object-fit:cover; border-radius:8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="flex-grow:1; display: flex; flex-direction: column; justify-content: space-between; height: 100px;">
+                            <div>
+                                <h5 style="margin: 0; font-weight: 700; font-size: 1.1rem; line-height: 1.2;">${item.title}</h5>
+                                <p style="margin: 5px 0 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${item.subtitle || '-'}</p>
                             </div>
-                            <span class="status-text fw-bold ${item.is_active == 1 ? 'text-success' : 'text-danger'}" style="font-size: 11px; font-weight:800; color: ${item.is_active == 1 ? '#10b981' : '#ef4444'};">${item.is_active == 1 ? 'AKTIF' : 'NON-AKTIF'}</span>
+                            <p style="margin: 0; font-size: 0.8rem; color: var(--primary-color); font-weight:600;"><i class="far fa-calendar-alt"></i> ${dateStr || '-'}</p>
                         </div>
-                    </td>
-                    <td data-label="Aksi" class="text-end" style="text-align:right;">
-                        <button onclick="deleteGallery(${item.id})" style="background: #fee2e2; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-trash text-danger" style="color:#ef4444;"></i></button>
-                    </td>
-                </tr>
-            `;
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: auto;">
+                        <div style="display:flex; align-items:center; gap: 10px;">
+                            <label style="font-size: 0.8rem; font-weight: 600;">Urutan:</label>
+                            <input type="number" class="order-input" value="${item.display_order > 0 ? item.display_order : ''}" onchange="updateOrder(${item.id}, this.value, this)" ${disabled} style="border:1px solid #edf2f7; border-radius:8px; padding:5px; width: 60px; text-align: center;">
+                        </div>
+                        <div style="display:flex; align-items:center; gap: 15px;">
+                            <div class="d-flex align-items-center gap-2" style="display:flex; align-items:center; gap:5px;">
+                                <div class="toggle-switch-spa ${item.is_active == 1 ? 'active' : ''}" onclick="toggleStatus(${item.id})">
+                                    <div class="toggle-dot"></div>
+                                </div>
+                                <span class="status-text fw-bold ${item.is_active == 1 ? 'text-success' : 'text-danger'}" style="font-size: 10px; font-weight:800; color: ${item.is_active == 1 ? '#10b981' : '#ef4444'};">${item.is_active == 1 ? 'AKTIF' : 'NON-AKTIF'}</span>
+                            </div>
+                            <button onclick="deleteGallery(${item.id})" style="background: #fee2e2; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer;"><i class="fas fa-trash text-danger" style="color:#ef4444;"></i></button>
+                        </div>
+                    </div>
+                </div>
+                `;
             }).join('');
 
             return `
@@ -624,25 +687,52 @@
                         </div>
                         <button class="btn-spa btn-spa-primary" style="padding: 0.8rem 1.5rem;" onclick="openModal('photo-modal')"><i class="fas fa-plus me-2"></i> Tambah Foto</button>
                     </header>
-                    <div style="margin-bottom: 15px;">
-                        <div style="position: relative; max-width: 300px;">
-                            <i class="fas fa-search" style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
-                            <input type="text" class="input-spa" placeholder="Cari foto..." onkeyup="filterGallery(this.value)" style="padding-left: 40px; border-radius: 20px;">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom: 5px;">Pencarian Judul</label>
+                            <input type="text" id="adminGallerySearch" class="input-spa" placeholder="Cari foto..." onkeyup="filterAdminGallery()" style="padding: 8px 12px; width: 100%;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom: 5px;">Filter Pekan</label>
+                            <select id="adminFilterPekan" class="input-spa" onchange="filterAdminGallery()" style="padding: 8px 12px; width: 100%;">
+                                <option value="">Semua Pekan</option>
+                                <option value="1">Pekan 1</option>
+                                <option value="2">Pekan 2</option>
+                                <option value="3">Pekan 3</option>
+                                <option value="4">Pekan 4</option>
+                                <option value="5">Pekan 5</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom: 5px;">Filter Bulan</label>
+                            <select id="adminFilterBulan" class="input-spa" onchange="filterAdminGallery()" style="padding: 8px 12px; width: 100%;">
+                                <option value="">Semua Bulan</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom: 5px;">Filter Tahun</label>
+                            <select id="adminFilterTahun" class="input-spa" onchange="filterAdminGallery()" style="padding: 8px 12px; width: 100%;">
+                                <option value="">Semua Tahun</option>
+                                ${yearOptions}
+                            </select>
                         </div>
                     </div>
-                    <div class="cms-table-container">
-                        <table class="cms-table" style="width:100%; text-align:left;">
-                            <thead>
-                                <tr>
-                                    <th style="width:80px;">Urutan</th>
-                                    <th>Preview</th>
-                                    <th>Judul</th>
-                                    <th>Status</th>
-                                    <th style="text-align:right;">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gallery-table-body">${rows}</tbody>
-                        </table>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;" id="adminGalleryContainer">
+                        ${rows || '<p class="text-muted" style="text-align:center; padding: 2rem;">Belum ada arsip foto.</p>'}
                     </div>
                 </div>
             `;

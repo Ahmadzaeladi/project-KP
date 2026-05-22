@@ -1,65 +1,13 @@
-<!DOCTYPE html>
-<html lang="id">
+<?= $this->extend('layout/frontend') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php
-    $seoTitle = "PT Pra Kerja Nusantara | Solusi Outsourcing Masa Depan";
-    $seoDesc = "PT Pra Kerja Nusantara - Solusi Outsourcing Premium & Modern. Kami menghubungkan talenta terbaik dengan perusahaan visioner.";
-    $seoKeywords = "outsourcing, staffing, ptn, pra kerja nusantara, tenaga kerja, manajemen SDM";
-    $seoAuthor = "PT Pra Kerja Nusantara";
-    $seoUrl = base_url();
-    $seoImage = base_url('Assets/Hero.webp');
-    ?>
-
-    <title><?= $seoTitle ?></title>
-    <meta name="description" content="<?= $seoDesc ?>">
-    <meta name="keywords" content="<?= $seoKeywords ?>">
-    <meta name="author" content="<?= $seoAuthor ?>">
-    
-    <!-- SEO Best Practices -->
-    <link rel="canonical" href="<?= $seoUrl ?>">
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= $seoUrl ?>">
-    <meta property="og:title" content="<?= $seoTitle ?>">
-    <meta property="og:description" content="<?= $seoDesc ?>">
-    <meta property="og:image" content="<?= $seoImage ?>">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="<?= $seoUrl ?>">
-    <meta property="twitter:title" content="<?= $seoTitle ?>">
-    <meta property="twitter:description" content="<?= $seoDesc ?>">
-    <meta property="twitter:image" content="<?= $seoImage ?>">
-
-    <!-- Google Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap"
-        rel="stylesheet">
-
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- AOS (Animate On Scroll) CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
-
+<?= $this->section('extra_head') ?>
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "PT Pra Kerja Nusantara",
-      "url": "<?= $seoUrl ?>",
+      "url": "<?= esc($seoUrl ?? base_url()) ?>",
       "logo": "<?= base_url('Assets/logo.webp') ?>",
       "contactPoint": {
         "@type": "ContactPoint",
@@ -74,35 +22,9 @@
       }
     }
     </script>
-</head>
+<?= $this->endSection() ?>
 
-<body data-bs-spy="scroll" data-bs-target=".navbar">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <img src="<?= base_url('Assets/logo.webp') ?>" alt="" width="auto" height="50px">
-            </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <i class="fas fa-bars" style="color: var(--primary-color);"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#vision-mission">Visi Misi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#team">Manajemen</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#activities">Galeri</a></li>
-                    <li class="nav-item ms-lg-4 mt-2 mt-lg-0"><a class="btn-modern btn-filled" href="#contact">Kontak</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main>
+<?= $this->section('content') ?>
         <!-- Hero Section -->
         <section id="hero">
             <div class="container">
@@ -277,57 +199,4 @@
                 </div>
             </div>
         </section>
-
-        <!-- Our Activities Section -->
-        <section id="activities" class="bg-light">
-            <div class="container">
-                <div class="section-title text-center mb-5" data-aos="fade-up">
-                    <h2>Galeri Kegiatan</h2>
-                    <div class="title-line"></div>
-                </div>
-                <div class="gallery-grid">
-                    <?php foreach ($gallery as $index => $g): ?>
-                    <?php 
-                        $class = '';
-                        if ($index == 0) $class = 'tall';
-                        elseif ($index == 2) $class = 'wide';
-                    ?>
-                    <div class="gallery-item <?= $class ?>" data-aos="zoom-in" data-aos-delay="<?= 100 * $index ?>">
-                        <img src="<?= esc($g['image_path']) ?>" alt="<?= esc($g['title']) ?>" class="img-fluid">
-                        <div class="gallery-overlay">
-                            <p class="small text-white mb-0 fw-bold"><?= esc($g['title']) ?></p>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer id="contact">
-        <div class="container text-center">
-            <a href="#" class="footer-logo">
-                <img src="<?= base_url('Assets/logo.webp') ?>" width="auto" height="50" alt=""><br>
-                <span style="color: var(--accent-color); ">PT Prakerja Nusantara</span>
-            </a>
-            <p class="text-muted small mb-5 fw-medium mt-3">
-                <?= esc($settings['contact_address'] ?? 'Alamat Perusahaan') ?><br>
-                <?= esc($settings['contact_email'] ?? 'email@example.com') ?> | <?= esc($settings['contact_phone'] ?? '+62000000') ?>
-            </p>
-            <hr style="background: rgba(0,0,0,0.05);">
-            <p class="text-muted small mt-5"><?= esc($settings['copyright_text'] ?? '© 2026 PT Pra Kerja Nusantara.') ?></p>
-        </div>
-    </footer>
-
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- AOS (Animate On Scroll) JS -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Custom JS -->
-    <script src="<?= base_url('js/script.js') ?>"></script>
-</body>
-
-</html>
+<?= $this->endSection() ?>
