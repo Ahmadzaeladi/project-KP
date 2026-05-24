@@ -187,7 +187,6 @@ class Admin extends BaseController
     public function addMission()
     {
         $rules = [
-            'title' => 'required|min_length[3]',
             'description' => 'required'
         ];
 
@@ -366,6 +365,56 @@ class Admin extends BaseController
         }
 
         return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal mengunggah ke Cloudinary.']);
+    }
+
+    public function editGallery($id)
+    {
+        $title = $this->request->getPost('title');
+        $caption = $this->request->getPost('caption');
+        $tanggal_kegiatan = $this->request->getPost('tanggal_kegiatan');
+
+        if (empty($title)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Judul foto wajib diisi.']);
+        }
+
+        $updateData = [
+            'title' => $title,
+            'subtitle' => $caption
+        ];
+        if (!empty($tanggal_kegiatan)) {
+            $updateData['published_at'] = $tanggal_kegiatan;
+        }
+
+        $this->contentModel->update($id, $updateData);
+
+        // Cek file atau base64 (Kamera)
+        $file = $this->request->getFile('photo');
+        $base64 = $this->request->getPost('photo_base64');
+        
+        $uploadSource = null;
+        if ($file && $file->isValid()) {
+            $uploadSource = $file;
+        } elseif (!empty($base64)) {
+            $uploadSource = $base64;
+        }
+
+        if ($uploadSource) {
+            $uploadData = $this->uploadToCloudinary($uploadSource, 'pkn_gallery');
+            if ($uploadData) {
+                $existingImg = $this->imageModel->where('content_id', $id)->first();
+                if ($existingImg) {
+                    $this->imageModel->update($existingImg['id'], ['image_url' => $uploadData['url'], 'public_id' => $uploadData['public_id']]);
+                } else {
+                    $this->imageModel->insert(['content_id' => $id, 'image_url' => $uploadData['url'], 'public_id' => $uploadData['public_id']]);
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => 'Foto diperbarui', 
+            'gallery' => $this->getContentWithImages('gallery')
+        ]);
     }
 
     public function toggleStatus($id)

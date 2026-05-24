@@ -189,7 +189,7 @@ h6 {
 }
 
 .accent-text::after {
-    content: ' v1.0';
+  
     font-size: 0.6rem;
     color: var(--text-muted);
     letter-spacing: 1px;

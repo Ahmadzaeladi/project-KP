@@ -14,6 +14,7 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     
     // Gallery
     $routes->post('gallery/add', 'Admin::addGallery');
+    $routes->post('gallery/update/(:num)', 'Admin::editGallery/$1');
     $routes->post('gallery/toggle/(:num)', 'Admin::toggleStatus/$1');
     $routes->post('gallery/update-order', 'Admin::updateOrder');
     $routes->post('gallery/delete/(:num)', 'Admin::deleteGallery/$1');
