@@ -38,9 +38,11 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
 
+    <link rel="icon" type="image/png" href="<?=  base_url('Assets/logo.webp') ?>">
+
     <?= $this->renderSection('extra_head') ?>
 </head>
-<body data-bs-spy="scroll" data-bs-target=".navbar">
+<body>
 
     <?= $this->include('components/navbar') ?>
 

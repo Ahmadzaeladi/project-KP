@@ -86,7 +86,9 @@
             'visimisi': renderVisiMisi,
             'team': renderTeam,
             'clients': renderClients,
-            'gallery': renderGallery
+            'gallery': renderGallery,
+            'services': renderServices,
+            'certifications': renderCertifications
         };
 
         function navigate() {
@@ -214,6 +216,10 @@
         setupModalForm('edit-client-form', 'admin/client/update/', 'clients', 'edit-client-modal', 'edit-client-id');
         setupModalForm('add-photo-form', 'admin/gallery/add', 'gallery', 'photo-modal');
         setupModalForm('edit-photo-form', 'admin/gallery/update/', 'gallery', 'edit-photo-modal', 'edit-photo-id');
+        setupModalForm('add-service-form', 'admin/service/add', 'services', 'service-modal');
+        setupModalForm('edit-service-form', 'admin/service/update/', 'services', 'edit-service-modal', 'edit-service-id');
+        setupModalForm('add-certification-form', 'admin/certification/add', 'certifications', 'certification-modal');
+        setupModalForm('edit-certification-form', 'admin/certification/update/', 'certifications', 'edit-certification-modal', 'edit-certification-id');
 
         function openEditGallery(id) {
             const g = serverData.gallery.find(x => x.id == id);
@@ -249,6 +255,21 @@
             openModal('edit-client-modal');
         }
 
+        function openEditService(id) {
+            const s = serverData.services.find(x => x.id == id);
+            document.getElementById('edit-service-id').value = s.id;
+            document.getElementById('edit-service-title').value = s.title;
+            document.getElementById('edit-service-desc').value = s.description;
+            openModal('edit-service-modal');
+        }
+
+        function openEditCertification(id) {
+            const c = serverData.certifications.find(x => x.id == id);
+            document.getElementById('edit-certification-id').value = c.id;
+            document.getElementById('edit-certification-name').value = c.name;
+            openModal('edit-certification-modal');
+        }
+
         async function deleteMission(id) {
             if(!confirm('Hapus misi ini?')) return;
             const res = await fetch(baseUrl + 'admin/mission/delete/' + id, {method: 'POST'});
@@ -278,6 +299,28 @@
             if(data.status === 'success') {
                 serverData.clients = data.clients;
                 showToast('Klien dihapus', 'success');
+                navigate();
+            }
+        }
+
+        async function deleteService(id) {
+            if(!confirm('Hapus layanan ini?')) return;
+            const res = await fetch(baseUrl + 'admin/service/delete/' + id, {method: 'POST'});
+            const data = await res.json();
+            if(data.status === 'success') {
+                serverData.services = data.services;
+                showToast('Layanan dihapus', 'success');
+                navigate();
+            }
+        }
+
+        async function deleteCertification(id) {
+            if(!confirm('Hapus sertifikasi ini?')) return;
+            const res = await fetch(baseUrl + 'admin/certification/delete/' + id, {method: 'POST'});
+            const data = await res.json();
+            if(data.status === 'success') {
+                serverData.certifications = data.certifications;
+                showToast('Sertifikasi dihapus', 'success');
                 navigate();
             }
         }

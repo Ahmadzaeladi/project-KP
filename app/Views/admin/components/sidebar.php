@@ -1,7 +1,7 @@
         <!-- Sidebar SPA (Desktop) -->
         <aside class="sidebar-spa">
-            <div class="sidebar-brand">
-                PKN<span>.</span>CMS
+            <div class="sidebar-brand flex justify-content-center align-items-center">
+                <img src="<?= base_url('Assets/logo.webp') ?>" style="max-width: 100%; height: auto; max-height: 65px; object-fit: contain; margin: 0 auto; display: block;" alt="Logo">
             </div>
             <nav class="nav-links-spa">
                 <a href="#dashboard" class="nav-link-spa active" data-view="dashboard">
@@ -22,6 +22,12 @@
                 <a href="#gallery" class="nav-link-spa" data-view="gallery">
                     <i class="fas fa-images"></i> Gallery
                 </a>
+                <a href="#services" class="nav-link-spa" data-view="services">
+                    <i class="fas fa-briefcase"></i> Layanan Kami
+                </a>
+                <a href="#certifications" class="nav-link-spa" data-view="certifications">
+                    <i class="fas fa-certificate"></i> Sertifikasi
+                </a>
             </nav>
             <div style="padding: 2rem;">
                 <a href="<?= base_url() ?>" target="_blank" class="nav-link-spa" style="background: #f1f5f9;">
@@ -41,4 +47,6 @@
             <a href="#team" class="bottom-link" data-view="team"><i class="fas fa-users-gear"></i></a>
             <a href="#clients" class="bottom-link" data-view="clients"><i class="fas fa-handshake"></i></a>
             <a href="#gallery" class="bottom-link" data-view="gallery"><i class="fas fa-photo-film"></i></a>
+            <a href="#services" class="bottom-link" data-view="services"><i class="fas fa-briefcase"></i></a>
+            <a href="#certifications" class="bottom-link" data-view="certifications"><i class="fas fa-certificate"></i></a>
         </nav>

@@ -123,7 +123,9 @@ class Admin extends BaseController
             'settings' => $settings,
             'missions' => $this->getContentWithImages('mission'),
             'team' => $this->getContentWithImages('team'),
-            'clients' => $this->getContentWithImages('clients')
+            'clients' => $this->getContentWithImages('clients'),
+            'services' => $this->getContentWithImages('services'),
+            'certifications' => $this->getContentWithImages('certifications')
         ];
 
         return view('admin/spa_dashboard', $data);
@@ -586,6 +588,145 @@ class Admin extends BaseController
                                   ->set('order_index', 'order_index - 1', false)->update();
             }
             return $this->response->setJSON(['status' => 'success', 'message' => 'Klien dihapus.', 'clients' => $this->getContentWithImages('clients')]);
+        }
+        return $this->response->setJSON(['status' => 'error'], 400);
+    }
+
+    // --- SERVICES ---
+    public function addService()
+    {
+        $rules = [
+            'title' => 'required',
+            'description' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data tidak valid.']);
+        }
+
+        $maxOrder = $this->contentModel->where('section', 'services')->where('is_active', 1)->selectMax('order_index')->first();
+        $newOrder = ($maxOrder['order_index'] ?? 0) + 1;
+
+        $this->contentModel->insert([
+            'section' => 'services',
+            'title' => $this->request->getPost('title'),
+            'body_content' => $this->request->getPost('description'),
+            'order_index' => $newOrder,
+            'is_active' => 1
+        ]);
+
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'message' => 'Layanan berhasil ditambahkan',
+            'services' => $this->getContentWithImages('services')
+        ]);
+    }
+
+    public function editService($id)
+    {
+        $this->contentModel->update($id, [
+            'title' => $this->request->getPost('title'),
+            'body_content' => $this->request->getPost('description')
+        ]);
+
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => 'Layanan diperbarui', 
+            'services' => $this->getContentWithImages('services')
+        ]);
+    }
+
+    public function deleteService($id)
+    {
+        $service = $this->contentModel->where('section', 'services')->where('id', $id)->first();
+        if ($service && $this->contentModel->delete($id)) {
+            if ($service['is_active'] == 1 && $service['order_index'] > 0) {
+                $this->contentModel->builder()->where('section', 'services')->where('is_active', 1)->where('order_index >', $service['order_index'])
+                                  ->set('order_index', 'order_index - 1', false)->update();
+            }
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Layanan dihapus.', 'services' => $this->getContentWithImages('services')]);
+        }
+        return $this->response->setJSON(['status' => 'error'], 400);
+    }
+
+    // --- CERTIFICATIONS ---
+    public function addCertification()
+    {
+        $rules = [
+            'name' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data tidak valid.']);
+        }
+
+        $file = $this->request->getFile('photo');
+        $uploadData = null;
+        if ($file && $file->isValid()) {
+            $uploadData = $this->uploadToCloudinary($file, 'pkn_certifications');
+        }
+
+        if ($uploadData) {
+            $maxOrder = $this->contentModel->where('section', 'certifications')->where('is_active', 1)->selectMax('order_index')->first();
+            $newOrder = ($maxOrder['order_index'] ?? 0) + 1;
+
+            $this->contentModel->insert([
+                'section' => 'certifications',
+                'title' => $this->request->getPost('name'),
+                'order_index' => $newOrder,
+                'is_active' => 1
+            ]);
+            $contentId = $this->contentModel->getInsertID();
+
+            $this->imageModel->insert([
+                'content_id' => $contentId,
+                'image_url' => $uploadData['url'],
+                'public_id' => $uploadData['public_id']
+            ]);
+
+            return $this->response->setJSON([
+                'status'  => 'success',
+                'message' => 'Sertifikasi ditambahkan',
+                'certifications' => $this->getContentWithImages('certifications')
+            ]);
+        }
+
+        return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal mengunggah logo.']);
+    }
+
+    public function editCertification($id)
+    {
+        $this->contentModel->update($id, ['title' => $this->request->getPost('name')]);
+        
+        $file = $this->request->getFile('photo');
+        if ($file && $file->isValid()) {
+            $uploadData = $this->uploadToCloudinary($file, 'pkn_certifications');
+            if ($uploadData) {
+                $existingImg = $this->imageModel->where('content_id', $id)->first();
+                if ($existingImg) {
+                    $this->imageModel->update($existingImg['id'], ['image_url' => $uploadData['url'], 'public_id' => $uploadData['public_id']]);
+                } else {
+                    $this->imageModel->insert(['content_id' => $id, 'image_url' => $uploadData['url'], 'public_id' => $uploadData['public_id']]);
+                }
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => 'Sertifikasi diperbarui', 
+            'certifications' => $this->getContentWithImages('certifications')
+        ]);
+    }
+
+    public function deleteCertification($id)
+    {
+        $cert = $this->contentModel->where('section', 'certifications')->where('id', $id)->first();
+        if ($cert && $this->contentModel->delete($id)) {
+            if ($cert['is_active'] == 1 && $cert['order_index'] > 0) {
+                $this->contentModel->builder()->where('section', 'certifications')->where('is_active', 1)->where('order_index >', $cert['order_index'])
+                                  ->set('order_index', 'order_index - 1', false)->update();
+            }
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Sertifikasi dihapus.', 'certifications' => $this->getContentWithImages('certifications')]);
         }
         return $this->response->setJSON(['status' => 'error'], 400);
     }

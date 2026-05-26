@@ -74,16 +74,7 @@
                         <p class="mb-4" style="white-space: pre-line;">
                             <?= esc($settings['about_text'] ?? 'Lorem ipsum dolor sit amet...') ?>
                         </p>
-                        <div class="row mt-5">
-                            <div class="col-6">
-                                <h3 style="color: var(--primary-color);" class="mb-1 fw-bold"><?= esc($settings['stat_experience'] ?? '10+') ?></h3>
-                                <p class="small text-muted fw-semibold">Pengalaman</p>
-                            </div>
-                            <div class="col-6">
-                                <h3 style="color: var(--primary-color);" class="mb-1 fw-bold"><?= esc($settings['stat_partners'] ?? '500+') ?></h3>
-                                <p class="small text-muted fw-semibold">Mitra Korporasi</p>
-                            </div>
-                        </div>
+                       
                     </div>
                     <div class="col-lg-6" data-aos="fade-left">
                         <div class="bento-item h-100"
@@ -125,6 +116,34 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-5" style="background: #f8fafc;">
+            <div class="container">
+                <div class="section-title text-center mb-5" data-aos="fade-up">
+                    <h2>Layanan Kami</h2>
+                    <div class="title-line"></div>
+                </div>
+                
+                <?php if (!empty($services)): ?>
+                <div class="row g-4 justify-content-center">
+                    <?php foreach ($services as $index => $s): ?>
+                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="<?= 100 * ($index + 1) ?>">
+                        <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; transition: transform 0.3s; padding: 2rem;">
+                            <div class="card-body">
+                                <div style="width: 60px; height: 60px; border-radius: 12px; background: rgba(0, 74, 173, 0.1); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.5rem;">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <h4 class="fw-bold mb-3"><?= esc($s['title']) ?></h4>
+                                <p class="text-muted" style="line-height: 1.6;"><?= nl2br(esc($s['body_content'])) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </section>
 
@@ -170,6 +189,27 @@
                         </div>
                         <?php endforeach; ?>
                     </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <!-- Certifications Section -->
+        <section id="certifications" class="py-5" style="background: #ffffff;">
+            <div class="container overflow-hidden">
+                <div class="section-title text-center mb-5" data-aos="fade-up">
+                    <h2>Terdaftar & Tersertifikasi</h2>
+                    <div class="title-line"></div>
+                </div>
+                
+                <?php if (!empty($certifications)): ?>
+                <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 gap-md-5 mt-4" data-aos="fade-up">
+                    <?php foreach ($certifications as $c): ?>
+                        <div class="certification-item" style="text-align: center;">
+                            <img src="<?= esc($c['logo_path']) ?>" alt="<?= esc($c['title']) ?>" style="height: 60px; object-fit: contain; filter: grayscale(100%); transition: filter 0.3s;" onmouseover="this.style.filter='grayscale(0%)'" onmouseout="this.style.filter='grayscale(100%)'">
+                            <p class="mt-2 text-muted small fw-bold" style="display: none;"><?= esc($c['title']) ?></p>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
             </div>

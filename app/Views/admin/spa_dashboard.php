@@ -9,6 +9,8 @@
         <?= $this->include('admin/components/modal_team') ?>
         <?= $this->include('admin/components/modal_mission') ?>
         <?= $this->include('admin/components/modal_client') ?>
+        <?= $this->include('admin/components/modal_service') ?>
+        <?= $this->include('admin/components/modal_certification') ?>
 
         <!-- Main Content Area -->
         <main class="main-view" id="app-view">
@@ -27,7 +29,9 @@
             'gallery' => $gallery,
             'missions' => $missions,
             'team' => $team,
-            'clients' => $clients ?? []
+            'clients' => $clients ?? [],
+            'services' => $services ?? [],
+            'certifications' => $certifications ?? []
         ]) ?>;
 
         const baseUrl = '<?= base_url() ?>';

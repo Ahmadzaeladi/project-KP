@@ -71,7 +71,7 @@
                                 <label class="form-label-spa">Sub Headline</label>
                                 <textarea name="sub_headline" class="input-spa" rows="3">${h.sub_headline || ''}</textarea>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
                                     <label class="form-label-spa">Primary CTA</label>
                                     <input type="text" name="primary_cta_text" class="input-spa" value="${h.primary_cta_text || ''}">
@@ -80,7 +80,7 @@
                                     <label class="form-label-spa">Secondary CTA</label>
                                     <input type="text" name="secondary_cta_text" class="input-spa" value="${h.secondary_cta_text || ''}">
                                 </div>
-                            </div>
+                            </div> -->
                             <div style="margin-top: 1rem;">
                                 <button type="submit" class="btn-spa btn-spa-primary">Simpan Hero</button>
                             </div>
@@ -94,7 +94,7 @@
                                 <label class="form-label-spa">Deskripsi Perusahaan</label>
                                 <textarea name="about_text" class="input-spa" rows="4">${s.about_text || ''}</textarea>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <!-- <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
                                     <label class="form-label-spa">Statistik Pengalaman</label>
                                     <input type="text" name="stat_experience" class="input-spa" value="${s.stat_experience || ''}">
@@ -103,7 +103,7 @@
                                     <label class="form-label-spa">Statistik Mitra</label>
                                     <input type="text" name="stat_partners" class="input-spa" value="${s.stat_partners || ''}">
                                 </div>
-                            </div>
+                            </div> -->
                             <div>
                                 <label class="form-label-spa">Alamat Kontak</label>
                                 <textarea name="contact_address" class="input-spa" rows="2">${s.contact_address || ''}</textarea>
@@ -351,6 +351,66 @@
                     <div style="display: flex; flex-direction: column; gap: 15px;" id="adminGalleryContainer">
                         ${rows || '<p class="text-muted" style="text-align:center; padding: 2rem;">Belum ada arsip foto.</p>'}
                     </div>
+                </div>
+            `;
+        }
+
+        function renderServices() {
+            let rows = serverData.services.map(s => `
+                <div class="card-spa" style="padding: 1.2rem; display: flex; align-items: flex-start; gap: 20px; margin-bottom:15px; opacity: ${s.is_active == 1 ? '1' : '0.5'}">
+                    <div style="flex-grow:1;">
+                        <h5 style="margin: 0; font-weight: 700;">${s.title}</h5>
+                        <p style="margin: 5px 0 0; font-size: 0.85rem; color: var(--text-muted);">${s.description}</p>
+                    </div>
+                    <div style="display:flex; gap: 10px; align-items: center;">
+                        <button onclick="openEditService(${s.id})" style="background: #e0f2fe; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-edit text-primary" style="color: #0ea5e9;"></i></button>
+                        <button onclick="deleteService(${s.id})" style="background: #fee2e2; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-trash text-danger" style="color:#ef4444;"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            if(rows === '') rows = '<p class="text-muted">Belum ada layanan yang ditambahkan.</p>';
+
+            return `
+                <div class="view-content">
+                    <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h1 style="font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Layanan Kami</h1>
+                            <p style="color: var(--text-muted);">Kelola layanan perusahaan.</p>
+                        </div>
+                        <button class="btn-spa btn-spa-primary" style="padding: 0.8rem 1.5rem;" onclick="openModal('service-modal')"><i class="fas fa-plus me-2"></i> Tambah</button>
+                    </header>
+                    <div>${rows}</div>
+                </div>
+            `;
+        }
+
+        function renderCertifications() {
+            let rows = serverData.certifications.map(c => `
+                <div class="card-spa" style="padding: 1.2rem; display: flex; align-items: center; gap: 20px; margin-bottom:15px; opacity: ${c.is_active == 1 ? '1' : '0.5'}">
+                    <img src="${c.logo_path}" style="width:80px; height:50px; object-fit:contain;">
+                    <div style="flex-grow:1;">
+                        <h5 style="margin: 0; font-weight: 700;">${c.name}</h5>
+                    </div>
+                    <div style="display:flex; gap: 10px; align-items: center;">
+                        <button onclick="openEditCertification(${c.id})" style="background: #e0f2fe; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-edit text-primary" style="color: #0ea5e9;"></i></button>
+                        <button onclick="deleteCertification(${c.id})" style="background: #fee2e2; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-trash text-danger" style="color:#ef4444;"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            if(rows === '') rows = '<p class="text-muted">Belum ada sertifikasi.</p>';
+
+            return `
+                <div class="view-content">
+                    <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h1 style="font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Sertifikasi & Mitra Terdaftar</h1>
+                            <p style="color: var(--text-muted);">Kelola logo sertifikasi/kementrian yang mendukung perusahaan.</p>
+                        </div>
+                        <button class="btn-spa btn-spa-primary" style="padding: 0.8rem 1.5rem;" onclick="openModal('certification-modal')"><i class="fas fa-plus me-2"></i> Tambah</button>
+                    </header>
+                    <div>${rows}</div>
                 </div>
             `;
         }

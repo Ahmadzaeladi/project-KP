@@ -11,6 +11,7 @@
                     <li class="nav-item"><a class="nav-link" href="<?= base_url('#hero') ?>">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= base_url('#about') ?>">Tentang Kami</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= base_url('#vision-mission') ?>">Visi Misi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= base_url('#services') ?>">Layanan</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= base_url('#team') ?>">Manajemen</a></li>
                     <li class="nav-item"><a class="nav-link <?= (url_is('gallery') ? 'active' : '') ?>" href="<?= base_url('gallery') ?>">Galeri</a></li>
                     <li class="nav-item ms-lg-4 mt-2 mt-lg-0"><a class="btn-modern btn-filled" href="https://www.hrispkn.com/">HRIS</a>
