@@ -89,7 +89,8 @@
             'clients': renderClients,
             'gallery': renderGallery,
             'services': renderServices,
-            'certifications': renderCertifications
+            'certifications': renderCertifications,
+            'locations': renderLocations
         };
 
         function navigate() {
@@ -221,6 +222,8 @@
         setupModalForm('edit-service-form', 'admin/service/update/', 'services', 'edit-service-modal', 'edit-service-id');
         setupModalForm('add-certification-form', 'admin/certification/add', 'certifications', 'certification-modal');
         setupModalForm('edit-certification-form', 'admin/certification/update/', 'certifications', 'edit-certification-modal', 'edit-certification-id');
+        setupModalForm('add-location-form', 'admin/location/add', 'locations', 'location-modal');
+        setupModalForm('edit-location-form', 'admin/location/update/', 'locations', 'edit-location-modal', 'edit-location-id');
 
         function openEditGallery(id) {
             const g = serverData.gallery.find(x => x.id == id);
@@ -400,6 +403,111 @@
                     if(instruction) instruction.style.display = 'none';
                 }
                 reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        let addMap, editMap, addMarker, editMarker;
+
+        function initAddMap() {
+            if(!addMap) {
+                addMap = L.map('add-location-map').setView([-6.2088, 106.8456], 13); // Default to Jakarta
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(addMap);
+                
+                addMap.on('click', function(e) {
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+                    document.getElementById('add-lat').value = lat;
+                    document.getElementById('add-lng').value = lng;
+                    
+                    if (addMarker) addMap.removeLayer(addMarker);
+                    addMarker = L.marker([lat, lng]).addTo(addMap);
+                });
+
+                const updateAddMarker = () => {
+                    const lat = parseFloat(document.getElementById('add-lat').value);
+                    const lng = parseFloat(document.getElementById('add-lng').value);
+                    if(!isNaN(lat) && !isNaN(lng)) {
+                        if (addMarker) addMap.removeLayer(addMarker);
+                        addMarker = L.marker([lat, lng]).addTo(addMap);
+                        addMap.setView([lat, lng]);
+                    }
+                };
+                document.getElementById('add-lat').addEventListener('input', updateAddMarker);
+                document.getElementById('add-lng').addEventListener('input', updateAddMarker);
+            }
+            setTimeout(() => addMap.invalidateSize(), 300);
+        }
+
+        function initEditMap(lat, lng) {
+            if(!editMap) {
+                editMap = L.map('edit-location-map').setView([lat, lng], 13);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(editMap);
+                
+                editMap.on('click', function(e) {
+                    const newLat = e.latlng.lat;
+                    const newLng = e.latlng.lng;
+                    document.getElementById('edit-lat').value = newLat;
+                    document.getElementById('edit-lng').value = newLng;
+                    
+                    if (editMarker) editMap.removeLayer(editMarker);
+                    editMarker = L.marker([newLat, newLng]).addTo(editMap);
+                });
+
+                const updateEditMarker = () => {
+                    const lat = parseFloat(document.getElementById('edit-lat').value);
+                    const lng = parseFloat(document.getElementById('edit-lng').value);
+                    if(!isNaN(lat) && !isNaN(lng)) {
+                        if (editMarker) editMap.removeLayer(editMarker);
+                        editMarker = L.marker([lat, lng]).addTo(editMap);
+                        editMap.setView([lat, lng]);
+                    }
+                };
+                document.getElementById('edit-lat').addEventListener('input', updateEditMarker);
+                document.getElementById('edit-lng').addEventListener('input', updateEditMarker);
+            } else {
+                editMap.setView([lat, lng], 13);
+            }
+            
+            if (editMarker) editMap.removeLayer(editMarker);
+            editMarker = L.marker([lat, lng]).addTo(editMap);
+            
+            setTimeout(() => editMap.invalidateSize(), 300);
+        }
+
+        function openAddLocationModal() {
+            openModal('location-modal');
+            initAddMap();
+        }
+
+        function openEditLocation(id) {
+            const loc = serverData.locations.find(x => x.id == id);
+            document.getElementById('edit-location-id').value = loc.id;
+            document.getElementById('edit-location-name').value = loc.title;
+            document.getElementById('edit-location-address').value = loc.description;
+            
+            const coords = loc.subtitle ? loc.subtitle.split(',') : ['-6.2088', '106.8456'];
+            const lat = parseFloat(coords[0] || '-6.2088');
+            const lng = parseFloat(coords[1] || '106.8456');
+            
+            document.getElementById('edit-lat').value = lat;
+            document.getElementById('edit-lng').value = lng;
+            
+            openModal('edit-location-modal');
+            initEditMap(lat, lng);
+        }
+
+        async function deleteLocation(id) {
+            if(!confirm('Hapus lokasi ini?')) return;
+            const res = await fetch(baseUrl + 'admin/location/delete/' + id, {method: 'POST'});
+            const data = await res.json();
+            if(data.status === 'success') {
+                serverData.locations = data.locations;
+                showToast('Lokasi dihapus', 'success');
+                navigate();
             }
         }
 

@@ -1,3 +1,17 @@
+<?php
+/**
+ * @var array $hero
+ * @var array $settings
+ * @var array $missions
+ * @var array $services
+ * @var array $clients
+ * @var array $certifications
+ * @var array $team
+ * @var string $seoUrl
+ * @var string $gallery;
+ */
+?>
+
 <?= $this->extend('layouts/admin_layout') ?>
 
 <?= $this->section('content') ?>
@@ -11,6 +25,7 @@
         <?= $this->include('admin/components/modal_client') ?>
         <?= $this->include('admin/components/modal_service') ?>
         <?= $this->include('admin/components/modal_certification') ?>
+        <?= $this->include('admin/components/modal_location') ?>
 
         <!-- Main Content Area -->
         <main class="main-view" id="app-view">
@@ -31,7 +46,8 @@
             'team' => $team,
             'clients' => $clients ?? [],
             'services' => $services ?? [],
-            'certifications' => $certifications ?? []
+            'certifications' => $certifications ?? [],
+            'locations' => $locations ?? []
         ]) ?>;
 
         const baseUrl = '<?= base_url() ?>';

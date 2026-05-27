@@ -125,7 +125,8 @@ class Admin extends BaseController
             'team' => $this->getContentWithImages('team'),
             'clients' => $this->getContentWithImages('clients'),
             'services' => $this->getContentWithImages('services'),
-            'certifications' => $this->getContentWithImages('certifications')
+            'certifications' => $this->getContentWithImages('certifications'),
+            'locations' => $this->getContentWithImages('locations')
         ];
 
         return view('admin/spa_dashboard', $data);
@@ -736,6 +737,73 @@ class Admin extends BaseController
                                   ->set('order_index', 'order_index - 1', false)->update();
             }
             return $this->response->setJSON(['status' => 'success', 'message' => 'Sertifikasi dihapus.', 'certifications' => $this->getContentWithImages('certifications')]);
+        }
+        return $this->response->setJSON(['status' => 'error'], 400);
+    }
+
+    // --- LOCATIONS ---
+    public function addLocation()
+    {
+        $rules = [
+            'name' => 'required',
+            'address' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data tidak valid.']);
+        }
+
+        $maxOrder = $this->contentModel->where('section', 'locations')->where('is_active', 1)->selectMax('order_index')->first();
+        $newOrder = ($maxOrder['order_index'] ?? 0) + 1;
+
+        $lat = $this->request->getPost('latitude');
+        $lng = $this->request->getPost('longitude');
+
+        $this->contentModel->insert([
+            'section' => 'locations',
+            'title' => $this->request->getPost('name'),
+            'body_content' => $this->request->getPost('address'),
+            'subtitle' => $lat . ',' . $lng,
+            'order_index' => $newOrder,
+            'is_active' => 1
+        ]);
+
+        return $this->response->setJSON([
+            'status'  => 'success',
+            'message' => 'Lokasi berhasil ditambahkan',
+            'locations' => $this->getContentWithImages('locations')
+        ]);
+    }
+
+    public function editLocation($id)
+    {
+        $lat = $this->request->getPost('latitude');
+        $lng = $this->request->getPost('longitude');
+
+        $this->contentModel->update($id, [
+            'title' => $this->request->getPost('name'),
+            'body_content' => $this->request->getPost('address'),
+            'subtitle' => $lat . ',' . $lng
+        ]);
+
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => 'Lokasi diperbarui', 
+            'locations' => $this->getContentWithImages('locations')
+        ]);
+    }
+
+    public function deleteLocation($id)
+    {
+        $loc = $this->contentModel->where('section', 'locations')->where('id', $id)->first();
+        if ($loc && $this->contentModel->delete($id)) {
+            if ($loc['is_active'] == 1 && $loc['order_index'] > 0) {
+                $this->contentModel->builder()->where('section', 'locations')->where('is_active', 1)->where('order_index >', $loc['order_index'])
+                                  ->set('order_index', 'order_index - 1', false)->update();
+            }
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Lokasi dihapus.', 'locations' => $this->getContentWithImages('locations')]);
         }
         return $this->response->setJSON(['status' => 'error'], 400);
     }

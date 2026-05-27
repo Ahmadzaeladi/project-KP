@@ -415,4 +415,39 @@
                 </div>
             `;
         }
+
+        function renderLocations() {
+            let rows = serverData.locations.map(loc => {
+                const coords = loc.subtitle ? loc.subtitle.split(',') : ['', ''];
+                const lat = coords[0] ? coords[0].trim() : '';
+                const lng = coords[1] ? coords[1].trim() : '';
+                return `
+                <div class="card-spa" style="padding: 1.2rem; display: flex; align-items: flex-start; gap: 20px; margin-bottom:15px; opacity: ${loc.is_active == 1 ? '1' : '0.5'}">
+                    <div style="flex-grow:1;">
+                        <h5 style="margin: 0; font-weight: 700;"><i class="fas fa-location-dot text-primary me-2"></i> ${loc.title}</h5>
+                        <p style="margin: 5px 0 0; font-size: 0.85rem; color: var(--text-muted);">${loc.description}</p>
+                        <small style="color: var(--primary-color); font-weight: 600;">Lat: ${lat}, Lng: ${lng}</small>
+                    </div>
+                    <div style="display:flex; gap: 10px; align-items: center;">
+                        <button onclick="openEditLocation(${loc.id})" style="background: #e0f2fe; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-edit text-primary" style="color: #0ea5e9;"></i></button>
+                        <button onclick="deleteLocation(${loc.id})" style="background: #fee2e2; border: none; padding: 10px; border-radius: 10px; cursor: pointer;"><i class="fas fa-trash text-danger" style="color:#ef4444;"></i></button>
+                    </div>
+                </div>
+            `}).join('');
+
+            if(rows === '') rows = '<p class="text-muted">Belum ada lokasi kantor.</p>';
+
+            return `
+                <div class="view-content">
+                    <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <h1 style="font-weight: 800; font-size: 2rem; margin-bottom: 0.5rem;">Lokasi Kantor</h1>
+                            <p style="color: var(--text-muted);">Kelola titik peta kantor cabang.</p>
+                        </div>
+                        <button class="btn-spa btn-spa-primary" style="padding: 0.8rem 1.5rem;" onclick="openAddLocationModal()"><i class="fas fa-plus me-2"></i> Tambah Lokasi</button>
+                    </header>
+                    <div>${rows}</div>
+                </div>
+            `;
+        }
 </script>

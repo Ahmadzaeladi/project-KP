@@ -1,4 +1,4 @@
-﻿/* 
+/* 
    SPA CMS Dashboard Style for PT Pra Kerja Nusantara
    Focus: Single Page Application, Mobile First, Modern UI
 */
@@ -38,6 +38,7 @@ body {
     height: 100vh;
     z-index: 1000;
     transition: var(--transition-smooth);
+    overflow-y: auto;
 }
 
 .sidebar-brand {
@@ -264,6 +265,7 @@ body {
     background: #fcfdfe;
     transition: var(--transition-smooth);
     outline: none;
+    box-sizing: border-box;
 }
 
 .input-spa:focus {

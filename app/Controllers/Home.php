@@ -66,7 +66,7 @@ class Home extends BaseController
             'clients' => $getContentWithImages('clients', true),
             'services' => $getContentWithImages('services', true),
             'certifications' => $getContentWithImages('certifications', true),
-            
+            'locations' => $getContentWithImages('locations', true),
             
             // SEO
             'seoTitle' => "PT Pra Kerja Nusantara | Solusi Outsourcing Masa Depan",

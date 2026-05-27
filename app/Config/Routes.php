@@ -47,5 +47,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('certification/add', 'Admin::addCertification');
     $routes->post('certification/update/(:num)', 'Admin::editCertification/$1');
     $routes->post('certification/delete/(:num)', 'Admin::deleteCertification/$1');
+    
+    // Locations
+    $routes->post('location/add', 'Admin::addLocation');
+    $routes->post('location/update/(:num)', 'Admin::editLocation/$1');
+    $routes->post('location/delete/(:num)', 'Admin::deleteLocation/$1');
 });
 
