@@ -248,12 +248,12 @@ h6 {
 .logo-slider {
     display: inline-flex;
     /* Bergerak dari Kiri ke Kanan */
-    animation: scrollSliderRight 30s linear infinite;
+    animation: scrollSliderRight 45s linear infinite;
 }
 
 .logo-slider.slider-reverse {
     /* Bisa dibedakan kecepatannya agar terlihat lebih dinamis */
-    animation: scrollSliderRight 35s linear infinite;
+    animation: scrollSliderRight 50s linear infinite;
 }
 
 .logo-slider:hover {
@@ -293,21 +293,40 @@ h6 {
 
 /* Sections */
 section {
-    padding: 100px 0;
+    padding: 90px 0;
+}
+
+.section-title {
+    position: relative;
 }
 
 .section-title h2 {
     position: relative;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-main);
     display: inline-block;
+    margin-bottom: 12px;
+    padding-bottom: 0;
 }
 
 .title-line {
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 3px;
+    display: block;
+    transition: width 0.3s ease;
+}
+
+section:hover .title-line {
     width: 60px;
-    height: 4px;
-    background: var(--accent-color);
-    border-radius: 2px;
+}
+
+.text-center .title-line {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Vision & Mission - Premium Editorial Style */

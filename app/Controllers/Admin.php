@@ -117,7 +117,7 @@ class Admin extends BaseController
         }
 
         $data = [
-            'title' => 'SPA CMS Dashboard | PT Pra Kerja Nusantara',
+            'title' => 'PT Prakerja Nusantara',
             'gallery' => $this->getContentWithImages('gallery'),
             'hero' => $hero ?? [],
             'settings' => $settings,
@@ -457,10 +457,19 @@ class Admin extends BaseController
         
         if ($order === '' || $order === null) $order = 0;
 
-        if ($order > 0) {
+        $targetItem = $this->contentModel->where('section', 'gallery')->where('id', $id)->first();
+        
+        if ($order > 0 && $targetItem) {
             $existing = $this->contentModel->where('section', 'gallery')->where('order_index', $order)->where('id !=', $id)->first();
             if ($existing) {
-                return $this->response->setJSON(['status' => 'error', 'message' => 'Urutan sudah digunakan.']);
+                // Tukar urutan (Swap) dengan foto yang sudah ada di posisi tersebut
+                $oldOrder = $targetItem['order_index'];
+                if ($oldOrder === '' || $oldOrder === null || $oldOrder == 0) {
+                    // Jika foto saat ini belum punya urutan (0), kita geser semua ke atas, atau jadikan yang lama 0
+                    $this->contentModel->update($existing['id'], ['order_index' => 0]);
+                } else {
+                    $this->contentModel->update($existing['id'], ['order_index' => $oldOrder]);
+                }
             }
         }
         

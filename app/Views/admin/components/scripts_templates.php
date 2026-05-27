@@ -1,3 +1,4 @@
+<script>
         function renderDashboard() {
             return `
                 <div class="view-content">
@@ -414,3 +415,4 @@
                 </div>
             `;
         }
+</script>

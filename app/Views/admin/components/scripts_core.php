@@ -1,3 +1,4 @@
+<script>
         // --- Camera & Upload Logic --- //
         let videoStream = null;
 
@@ -404,3 +405,4 @@
 
         window.addEventListener('hashchange', navigate);
         window.addEventListener('load', navigate);
+</script>

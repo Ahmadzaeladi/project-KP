@@ -38,10 +38,14 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('client/update/(:num)', 'Admin::editClient/$1');
     $routes->post('client/delete/(:num)', 'Admin::deleteClient/$1');
     $routes->post('client/toggle/(:num)', 'Admin::toggleClientStatus/$1');
-});
+    // Services
+    $routes->post('service/add', 'Admin::addService');
+    $routes->post('service/update/(:num)', 'Admin::editService/$1');
+    $routes->post('service/delete/(:num)', 'Admin::deleteService/$1');
 
-// Login Routes
-$routes->get('login', 'Auth::index');
-$routes->post('login/process', 'Auth::process');
-$routes->get('logout', 'Auth::logout');
+    // Certifications
+    $routes->post('certification/add', 'Admin::addCertification');
+    $routes->post('certification/update/(:num)', 'Admin::editCertification/$1');
+    $routes->post('certification/delete/(:num)', 'Admin::deleteCertification/$1');
+});
 

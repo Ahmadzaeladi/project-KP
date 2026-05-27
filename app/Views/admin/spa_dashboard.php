@@ -53,7 +53,8 @@
             }, 3000);
         }
 
-        <?= $this->include('admin/components/scripts_core') ?>
-        <?= $this->include('admin/components/scripts_templates') ?>
     </script>
+
+    <?= $this->include('admin/components/scripts_templates') ?>
+    <?= $this->include('admin/components/scripts_core') ?>
 <?= $this->endSection() ?>

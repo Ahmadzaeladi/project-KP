@@ -1,4 +1,4 @@
-<?= $this->extend('layout/frontend') ?>
+<?= $this->extend('layouts/compro_layout') ?>
 
 <?= $this->section('extra_head') ?>
     <style>
@@ -59,9 +59,9 @@
         <section class="gallery-page-header">
             <div class="container">
                 <div class="section-title mb-0" data-aos="fade-up">
-                    <h1 class="display-5 fw-bold">Galeri Kegiatan</h1>
-                    <div class="title-line mx-auto"></div>
-                    <p class="text-muted mt-3">Dokumentasi dan aktivitas PT Pra Kerja Nusantara</p>
+                    <h1 class="display-5 fw-bold" style="color: var(--text-main); letter-spacing: -1px;">Galeri Kegiatan</h1>
+                    <div class="title-line mx-auto mt-3"></div>
+                    <p class="text-muted mt-3" style="font-size: 1.1rem;">Dokumentasi dan aktivitas profesional PT Prakerja Nusantara</p>
                 </div>
             </div>
         </section>
