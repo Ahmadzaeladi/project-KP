@@ -253,7 +253,7 @@ h6 {
 
 .logo-slider.slider-reverse {
     /* Bisa dibedakan kecepatannya agar terlihat lebih dinamis */
-    animation: scrollSliderRight 50s linear infinite;
+    animation: scrollSliderRight 50s linear infinite reverse;
 }
 
 .logo-slider:hover {
